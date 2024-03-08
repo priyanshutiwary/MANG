@@ -11,20 +11,14 @@ import Addb from './components/Addb';
 import Addw from './components/Addw';
 import env from 'dotenv';
 import axios from 'axios';
-
+import Yourb from './components/Yourb';
+import Youre from './components/Youre';
 
 
 function App() {
   const [data,setData]= useState()
-  const [username, setUsername] = useState();
-  useEffect(()=>{
-    axios.get('/api/data')
-    .then((response) => {
-      setData(response.data)
-    }).catch((error) => {
-      console.log(error);
-    })
-  })
+  
+
 
   
 
@@ -41,6 +35,12 @@ function App() {
         <Route path="/home" element={<Home />} />
         <Route path="/addb" element={<Addb />} />
         <Route path="/addw" element={<Addw />} />
+        <Route path="/yourb" element={<Yourb />} />
+        <Route path="/youre" element={<Youre />} />
+
+
+
+
         
       </Routes>
       </BrowserRouter>

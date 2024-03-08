@@ -5,22 +5,27 @@ import bodyParser from "body-parser"
 import cors from 'cors';
 import bcrypt from 'bcrypt'
 import jsonwebtoken from 'jsonwebtoken'
-// const bcrypt = require('bcrypt'); // Assuming you're using bcrypt for password hashing
+import jwt from 'jsonwebtoken';
+import cookieParser from 'cookie-parser';
+// import userAuthenticate from "./middleware/userAuthentication";
+
+
+
+
 
 const app = express();
+const router = express.Router();
+
+app.use(cookieParser());
+
 
 const port = process.env.PORT || 5001;
 
 app.use(bodyParser.urlencoded({ extended: true}));
 env.config();
 
-// Replace with your actual database credentials (avoid storing them in plain text)
 const dbConfig = {
-//     user: "postgres",
-//   host: "localhost",
-//   database: "MNG",
-//   password: "one trillion",
-//   port: 5433,
+
   user: process.env.PG_USER,
   host: process.env.PG_HOST,
   database: process.env.PG_DATABASE,
@@ -44,11 +49,6 @@ app.use(cors({
     credentials: true // Enable cookies for proper authentication handling
   }));
 app.use(express.json()); // Parse JSON request bodies
-
-
-app.get('/api/data',(req,res) =>{
-    res.send("hello")
-})
 
 
 // **Register endpoint**
@@ -83,51 +83,9 @@ app.post("/api/register", async (req, res) => {
     }
   });
   
+// login route
 
 
-
-    
-
-
-
-// app.post("/api/login", async (req, res) => {
-//     const { email, password } = req.body;
-  
-//     try {
-//       // Find user by email
-//       const result = await db.query("SELECT * FROM users WHERE email = $1", [
-//         email,
-//       ]);
-      
-  
-//       if (result.rows.length === 0) {
-//         return res.status(401).json({ message: "Invalid credentials" });
-//       }
-  
-//       const user = result.rows[0];
-  
-//       // Compare password hashes securely
-//       const isPasswordValid = await bcrypt.compare(password, user.password);
-  
-//       if (!isPasswordValid) {
-//         return res.status(401).json({ message: "Invalid credentials" });
-//       }
-  
-//       // Generate and send a secure JSON Web Token (JWT)
-//       const token = generateJwtToken({ id: user.id, email: user.email, username: user.username });
-      
-//       res.status(200).json({ success: true, message:"success"});   
-//      } catch (err) {
-//       console.error(err);
-//       res.status(500).json({ message: "Internal server error" });
-//     }
-//   });
-  
-
-
-
-
-  
   app.post("/api/login", async (req, res) => {
     const {email, password}= req.body
   
@@ -137,7 +95,8 @@ app.post("/api/register", async (req, res) => {
       ]);
       const user =result.rows[0]
       console.log("Reached flag1 ");
-      if (result.rows.length > 0 ) {//&& password===await bcrypt.compare(password, user.password)
+      
+      if (result.rows.length > 0  && await bcrypt.compare(password, user.password  ) ){//)
         // const userData = result.rows[0];
         
         // const pass = result.rows[0].password
@@ -146,7 +105,10 @@ app.post("/api/register", async (req, res) => {
         // const username =result.rows[0].username;
         // const name = result.rows[0].name;
         const token = generateJwtToken({ id: user.id, email: user.email, username: user.username });
-        
+        res.cookie("jwttoken", token, {
+            expires: new Date(Date.now()+ 25892000000),
+            httpOnly:true
+        })
         res.status(200).json({ success: true,token});
         
         
@@ -162,16 +124,194 @@ app.post("/api/register", async (req, res) => {
     }
   });
 
+  app.post('/api/addb' , async(req,res) => {
+    const {businessName, businessDetails, ownerUuid} = req.body;
+    console.log("reched");
+
+    try {
+        
+        console.log("enterd try");
+
+        await db.query(
+            "INSERT INTO business (business_name, business_details, owner_uuid) VALUES ($1,$2,$3)",
+            [businessName,businessDetails,ownerUuid]
+        )
+        console.log("business added")
+        res.status(200).json({success: true, message: "business added"})
+        
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({message:"internal server error"})
+        
+    }
+})
+
+app.post('/api/adde' , async(req,res) => {
+  const {employeeName, employeeAge, employeeSalary, employeeSalaryType, businessUuid, employerUuid} = req.body;
+  console.log("reched");
+
+  try {
+      
+      console.log("enterd try");
+
+      await db.query(
+          "INSERT INTO b_employees (employee_name, employee_age, salary_amount, salary_type, employer_uuid, business_uuid ) VALUES ($1,$2,$3,$4,$5,$6)",
+          [employeeName,employeeAge,employeeSalary,employeeSalaryType,employerUuid,businessUuid]
+      )
+      console.log("business added")
+      res.status(200).json({success: true, message: "business added"})
+      
+  } catch (error) {
+      console.log(error);
+      res.status(500).json({message:"internal server error"})
+      
+  }
+})
 
 
 
 
 
 
+const userAuthenticate = async (req, res, next) => {
+    try {
+        const token = req.cookies.jwttoken;
+        
+        if (!token) {
+            return res.status(401).send('Unauthorized: No token provided');
+        }
+        const decodedToken=jwt.verify(token, process.env.JWT_SECRET)
+        const userId = decodedToken.id;
 
-app.listen(port, () => {
-  console.log(`Server started at port ${port}`);
-});
+        // Query the database to find the user based on the token
+        const result = await db.query("SELECT * FROM users WHERE id = $1", [userId]);
+
+        if (result.rows.length === 0) {
+            return res.status(401).send('Unauthorized: Invalid token');
+        }
+        
+        const user = result.rows[0];
+        // console.log(user.uuid);
+        req.token = token;
+        req.rootUser = result.rows[0];
+        req.userID = user.id;
+
+        next();
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Internal server error');
+    }
+}
+
+
+
+
+const aboutBusiness = async (req, res, next) => {
+  try {
+      const token = req.cookies.jwttoken;
+      
+      if (!token) {
+          return res.status(401).send('Unauthorized: No token provided');
+      }
+
+      const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
+      const userId = decodedToken.id;
+
+      // Query the database to find the user based on the token
+      const userResult = await db.query("SELECT * FROM users WHERE id = $1", [userId]);
+
+      if (userResult.rows.length === 0) {
+          return res.status(401).send('Unauthorized: Invalid token');
+      }
+
+      const user = userResult.rows[0];
+      // console.log(user);
+      const user_uuid = user.uuid;
+      // console.log(user_uuid);
+      
+
+      const businessResult = await db.query("SELECT * FROM business WHERE owner_uuid = $1", [user_uuid]);
+      // console.log(businessResult);
+      // console.log(businessResult.rows.length);
+      if (businessResult.rows.length === 0) {
+          return res.status(404).send('Business information not found');
+      }
+
+      const business = businessResult.rows;
+      // console.log(business);
+      req.business = business; // Attach business information to the request object for subsequent middleware/routes
+      next();
+  } catch (err) {
+      console.error(err);
+      res.status(500).send('Internal server error');
+  }
+}
+
+const aboutEmployee = async (req, res, next) => {
+  try {
+      const token = req.cookies.jwttoken;
+      
+      if (!token) {
+          return res.status(401).send('Unauthorized: No token provided');
+      }
+
+      const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
+      const userId = decodedToken.id;
+
+      // Query the database to find the user based on the token
+      const userResult = await db.query("SELECT * FROM users WHERE id = $1", [userId]);
+
+      if (userResult.rows.length === 0) {
+          return res.status(401).send('Unauthorized: Invalid token');
+      }
+
+      const user = userResult.rows[0];
+      const user_uuid = user.uuid;
+      
+
+      const businessResult = await db.query("SELECT * FROM business WHERE owner_uuid = $1", [user_uuid]);
+      
+      if (businessResult.rows.length === 0) {
+          return res.status(401).send('Business information not found');
+      }
+      
+      const business_uuid = (businessResult.rows[0]).uuid
+      
+      const employeeResult = await db.query("SELECT * FROM b_employees WHERE employer_uuid = $1", [user_uuid])
+      
+      if (employeeResult.rows.length === 0) {
+        return res.status(401).send('employees information not found');
+      }
+      
+      const employee = employeeResult.rows;
+      console.log(employee);
+      req.employee = employee; 
+      next();
+  } catch (err) {
+      console.error(err);
+      res.status(500).send('Internal server error');
+  }
+}
+
+//about us ka page
+
+app.get('/api/aboutUser',userAuthenticate,(req,res) =>{
+    res.send(req.rootUser)
+})
+
+
+//business get ks page 
+app.get('/api/aboutBusiness',aboutBusiness,(req,res) =>{
+    
+  res.send(req.business)
+})
+
+//employee get ka page
+app.get('/api/aboutEmployee', aboutEmployee,(req,res)=>{
+  res.send(req.employee)
+}
+)
+
 
 
 
@@ -184,3 +324,8 @@ function generateJwtToken(userData) {
     return jsonwebtoken.sign(userData, secretKey)
 
 }
+
+
+app.listen(port, () => {
+    console.log(`Server started at port ${port}`);
+});

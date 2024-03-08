@@ -1,4 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import Getuser from '../utils/Getuser';
+import Getbusiness from '../utils/Getbusiness';
+import axios from 'axios';
 
 const Addw = () => {
   const [formData, setFormData] = useState({
@@ -8,26 +11,88 @@ const Addw = () => {
     salaryType: 'Monthly', // Set default salary type
   });
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
+  const [ownerUuid, setOwnerUuid] = useState()
+  const [businessUuid, setBusinessUuid] = useState()
 
   const handleChange = (event) => {
     setFormData({ ...formData, [event.target.name]: event.target.value });
   };
 
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    if (formData.name && formData.age && formData.salary) {
-      setIsSubmitted(true);
-      // You can submit the form data here (e.g., using fetch API)
-      console.log('Form submitted:', formData);
-      setFormData({ name: '', age: '', salary: '', salaryType: 'Monthly' }); // Clear form after submission
-    } else {
-      alert('Please fill in all mandatory fields.');
+
+  useEffect(()=>{
+    const fetchUser = async()=>{
+     try{
+       const userData = await Getuser();
+       setOwnerUuid(userData.uuid)
+       setIsLoggedIn(true)
+       
+     }catch(error){
+       console.log("error fetching data:", error);
+       setIsLoggedIn(false)
+       
+     }
     }
+    fetchUser();
+
+ }, []);
+ useEffect(()=>{
+  const fetchUser = async()=>{
+   try{
+     const businessData = await Getbusiness();
+     setBusinessUuid(businessData.uuid);
+     
+     
+     
+   }catch(error){
+     console.log("error fetching data:", error);
+     
+     
+   }
+  }
+  fetchUser();
+
+}, []);
+
+
+
+
+
+  const handleSubmit = async(event) => {
+    event.preventDefault(salaryType);
+    console.log(formData)
+    try{
+      console.log("entered try");
+      const response = await axios.post('/api/addw',{
+        employeeName:formData.name,
+        employeeAge:formData.age,
+        employeeSalary: formData.salary,
+        employeeSalaryType: formData.salaryType,
+        businessUuid: businessUuid,
+        employerUuid: ownerUuid,
+      })
+      console.log("after response");
+      
+      if (response.status === 200){
+        alert('bussiness added')
+        
+      }else{
+        alert('error adding');
+      }
+      
+
+    }catch(e){
+      console.log('Adding error:' , e);
+      alert('failed')
+
+    }
+    console.log('Form submitted:', formData);
+    setFormData({ businessName: '', businessDetails: '' }); // Clear form after submission
   };
 
   return (
     <div className="min-h-screen bg-gray-100 p-4">
-      {!isSubmitted && (
+      
         <form onSubmit={handleSubmit} className="flex flex-col space-y-4">
           <h2 className="text-xl font-bold text-center mb-4">Add Worker</h2>
           <div className="flex flex-col">
@@ -92,13 +157,8 @@ const Addw = () => {
             Submit
           </button>
         </form>
-      )}
-      {isSubmitted && (
-        <div className="text-center">
-          <p>Worker added successfully!</p>
-          {/* You can add a link to redirect to another page after successful submission */}
-        </div>
-      )}
+      
+      
     </div>
   );
 };

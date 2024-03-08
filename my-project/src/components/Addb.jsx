@@ -1,35 +1,108 @@
 import React from 'react'
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Header from './Header'
+import axios from 'axios'
+import {Getuser} from '../utils/Getuser'
+import Getbusiness from '../utils/Getbusiness';
+
 
 const Addb = () => {
-
+  const navigate = useNavigate()
   const [formData, setFormData] = useState({
     businessName: '',
     businessDetails: '',
   });
+  const [ownerUuid, setOwnerUuid] = useState();
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [isSubmitted, setIsSubmitted] = useState(false);
 
   const handleChange = (event) => {
     setFormData({ ...formData, [event.target.name]: event.target.value });
   };
 
-  const handleSubmit = (event) => {
+  const navigateToLoggin=()=>{
+    navigate('/login')
+  }
+  useEffect(()=>{
+    const fetchUser = async()=>{
+     try{
+       const userData = await Getuser();
+       setOwnerUuid(userData.uuid)
+       setIsLoggedIn(true)
+       
+     }catch(error){
+       console.log("error fetching data:", error);
+       setIsLoggedIn(false)
+       
+     }
+    }
+    fetchUser();
+
+ }, []);
+
+ useEffect(()=>{
+  const fetchUser = async()=>{
+   try{
+     const businessData = await Getbusiness();
+     console.log(businessData);
+     
+     
+     
+   }catch(error){
+     console.log("error fetching data:", error);
+     
+     
+   }
+  }
+  fetchUser();
+
+}, []);
+
+
+
+  const handleSubmit = async(event) => {
     event.preventDefault();
-    if (formData.businessName && formData.businessDetails) {
-      setIsSubmitted(true);
-      // You can submit the form data here (e.g., using fetch API)
+    console.log({businessName})
+      
+      try{
+        console.log("entered try");
+        const response = await axios.post('/api/addb',{
+          businessName:formData.businessName,
+          businessDetails:formData.businessDetails,
+          ownerUuid: ownerUuid,
+        })
+        console.log("after response");
+        
+        if (response.status === 200){
+          alert('bussiness added')
+          
+        }else{
+          alert('error adding');
+        }
+        
+
+      }catch(e){
+        console.log('Adding error:' , e);
+        alert('failed')
+
+      }
       console.log('Form submitted:', formData);
       setFormData({ businessName: '', businessDetails: '' }); // Clear form after submission
-    } else {
-      alert('Please fill in all mandatory fields.');
-    }
+     
   };
+  
+
+
+
+
+
+  if(isLoggedIn){
   return (
     <>
     <Header/>
     <div className="min-h-screen bg-gray-100 p-4">
-      {!isSubmitted && (
+     
         <form onSubmit={handleSubmit} className="flex flex-col space-y-4">
           <h2 className="text-xl font-bold text-center mb-4">Add Business</h2>
           <div className="flex flex-col">
@@ -63,16 +136,27 @@ const Addb = () => {
             Submit
           </button>
         </form>
-      )}
-      {isSubmitted && (
-        <div className="text-center">
-          <p>Bussiness Created</p>
-          {/* You can add a link to redirect to another page after successful submission */}
-        </div>
-      )}
+     
+      
     </div>
     </>
   )
+  }else if(!isLoggedIn){
+    return(
+    <>
+    <h1 className="mb-8">You are not logged in, please login</h1>
+    <button
+      type="button"
+      onClick={navigateToLoggin}
+      className="cursor-pointer text-red-900 text-center w-28 h-8 bg-gray-400 rounded-lg"
+    >
+      Log in here
+    </button>
+  
+    </>
+  
+    )
+  }
 }
 
 export default Addb
