@@ -18,22 +18,24 @@ const MyList = ({ items, name, detail}) => {
 //     console.error('Error parsing JSON:', error);
 //     // Handle the error gracefully, e.g., display an error message or use default data
 //   }
-  
+  var a =0;
 
 
 return (
     // <>hello</>
+    
     <div className='p-10 bg-gray-100 h-screen'>
     <ul  className="  grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-      {items.map((items) => (
+      {items.map((items,index) => (
         <li key={items.id || items.key} className= " hover:bg-slate-300 bg-white p-4 rounded-lg shadow-md">
           {/* Access item properties based on your data structure */}
-          <h3 className="text-lg font-medium">{name}</h3>
-          <h6 className="text-sm font-serif">{detail}</h6>
+          <h3 className="text-lg font-medium">{name[index]}</h3>
+          <h6 className="text-sm font-serif">{detail[index]}</h6>
 
           {/* <p>{item.description || item.content}</p> */}
           
         </li>
+        
       ))}
     </ul>
     </div>

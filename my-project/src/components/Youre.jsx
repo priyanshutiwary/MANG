@@ -25,7 +25,7 @@ const Youre = () => {
 
            setEmployeeName(Data.map((Data) => Data.employee_name))
 
-           setEmployeeSalary(Data.map((Data) => Data.employee_name))
+           setEmployeeSalary(Data.map((Data) => Data.salary_amount))
            
            
            
