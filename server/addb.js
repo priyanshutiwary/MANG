@@ -16,7 +16,7 @@ const addb =
 app.post('/api/addb' , async(req,res) => {
     const {businessName, businessDetails} = req.body;
     console.log("reched");
-
+ 
     try {
         
         console.log("enterd try");

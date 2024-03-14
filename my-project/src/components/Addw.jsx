@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Getuser from '../utils/Getuser';
 import Getbusiness from '../utils/Getbusiness';
 import axios from 'axios';
+import Header from './Header';
 
 const Addw = () => {
   const [formData, setFormData] = useState({
@@ -63,7 +64,7 @@ const Addw = () => {
     console.log(formData)
     try{
       console.log("entered try");
-      const response = await axios.post('/api/addw',{
+      const response = await axios.post('/api/adde',{
         employeeName:formData.name,
         employeeAge:formData.age,
         employeeSalary: formData.salary,
@@ -74,7 +75,7 @@ const Addw = () => {
       console.log("after response");
       
       if (response.status === 200){
-        alert('bussiness added')
+        alert('employee added')
         
       }else{
         alert('error adding');
@@ -89,8 +90,10 @@ const Addw = () => {
     console.log('Form submitted:', formData);
     setFormData({ businessName: '', businessDetails: '' }); // Clear form after submission
   };
-
+if(isLoggedIn){
   return (
+    <>
+    <Header/>
     <div className="min-h-screen bg-gray-100 p-4">
       
         <form onSubmit={handleSubmit} className="flex flex-col space-y-4">
@@ -160,7 +163,24 @@ const Addw = () => {
       
       
     </div>
-  );
+    </>
+  );}
+  else{
+    return(
+      <>
+      <h1 className="mb-8">You are not logged in, please login</h1>
+      <button
+        type="button"
+        onClick={()=> navigate('/login')}
+        className="cursor-pointer text-red-900 text-center w-28 h-8 bg-gray-400 rounded-lg"
+      >
+        Log in here
+      </button>
+    
+      </>
+    
+      )
+  }
 };
 
 export default Addw;

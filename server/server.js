@@ -13,6 +13,7 @@ import cookieParser from 'cookie-parser';
 
 
 
+
 const app = express();
 const router = express.Router();
 
@@ -123,6 +124,23 @@ app.post("/api/register", async (req, res) => {
 
     }
   });
+
+// login using google
+
+
+
+
+  app.post("/api/logout", async (req, res) => {
+    try {
+      // No action needed on the server-side to invalidate sessions (explained below)
+      res.clearCookie("jwttoken"); // Clear the JWT token cookie
+      res.status(200).json({ message: "Successfully logged out" });
+    } catch (err) {
+      console.log(err);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+  
 
   app.post('/api/addb' , async(req,res) => {
     const {businessName, businessDetails, ownerUuid} = req.body;
@@ -267,15 +285,15 @@ const aboutEmployee = async (req, res, next) => {
 
       const user = userResult.rows[0];
       const user_uuid = user.uuid;
-      
+    
 
       const businessResult = await db.query("SELECT * FROM business WHERE owner_uuid = $1", [user_uuid]);
       
-      if (businessResult.rows.length === 0) {
-          return res.status(401).send('Business information not found');
-      }
+      // if (businessResult.rows.length === 0) {
+      //     return res.status(401).send('Business information not found');
+      // }
       
-      const business_uuid = (businessResult.rows[0]).uuid
+      // const business_uuid = (businessResult.rows[0]).uuid
       
       const employeeResult = await db.query("SELECT * FROM b_employees WHERE employer_uuid = $1", [user_uuid])
       

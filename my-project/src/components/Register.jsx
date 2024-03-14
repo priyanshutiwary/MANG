@@ -23,7 +23,8 @@ const Register = () => {
         });
         if(response.status=== 200){
             console.log("resistration succesfull");
-            navigate('/home')
+            alert('registered! login now')
+            navigate('/login')
 
 
         }else{

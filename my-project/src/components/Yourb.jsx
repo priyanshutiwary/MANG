@@ -48,12 +48,12 @@ const Yourb = (props) => {
         fetchUser();
     
      }, []);
-     console.log(myBusiness);
+     
 
 
 
 
-
+if(isLoggedIn){
   return (
     <>
     <Header/>
@@ -61,7 +61,23 @@ const Yourb = (props) => {
 
 
     </>
-  )
+  )}
+  else{
+    return(
+      <>
+      <h1 className="mb-8">You are not logged in, please login</h1>
+      <button
+        type="button"
+        onClick={()=> navigate('/login')}
+        className="cursor-pointer text-red-900 text-center w-28 h-8 bg-gray-400 rounded-lg"
+      >
+        Log in here
+      </button>
+    
+      </>
+    
+      )
+  }
 }
 
 export default Yourb

@@ -13,7 +13,7 @@ export const Getbusiness = async () => {
 
     // console.log(res.data); // Access data within the 'data' property
     if (res.status == 200) {
-      console.log(res)
+      
         return res.data;
     } else {
         throw new Error('failed to fetch data')

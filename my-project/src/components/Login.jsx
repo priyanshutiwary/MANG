@@ -29,14 +29,7 @@ const Login = () => {
         // Assuming token received in response
         const decoded = jwtDecode(token)
         setUsername(decoded.username)
-        // console.log(decoded)
-        // console.log(decoded.username);
-        // console.log(username);
-        // const exportedUsername = decoded.username;
         
-        
-        
-        // const jwt_token = token; 
         
        
         
@@ -98,15 +91,19 @@ const Login = () => {
                 <h3 className="text-left text-red-600">Forget password</h3>
               </a>
             </div>
+
+            
           </form>
+          
         </div>
-      </div>
-      <div className="h-20 w-60 will-change-auto px-4 py-2 rounded-md bg-blue-500 text-white font-medium">
+        <div className="h-20 w-60 will-change-auto px-4 py-2 rounded-md bg-blue-500 text-white font-medium">
         <a className="" href="/auth/google" role="button">
           <i className="fab fa-google"></i>
           <h2 className=" ">Sign In with Google</h2>
         </a>
       </div>
+      </div>
+      
     </div>
   );
 };
