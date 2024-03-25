@@ -9,7 +9,6 @@ import Register from './components/Register';
 import Home from './components/Home';
 import Addb from './components/Addb';
 import Addw from './components/Addw';
-import env from 'dotenv';
 import axios from 'axios';
 import Yourb from './components/Yourb';
 import Youre from './components/Youre';
