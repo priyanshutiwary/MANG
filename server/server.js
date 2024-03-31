@@ -7,7 +7,9 @@ import bcrypt from 'bcrypt'
 import jsonwebtoken from 'jsonwebtoken'
 import jwt from 'jsonwebtoken';
 import cookieParser from 'cookie-parser';
-// import userAuthenticate from "./middleware/userAuthentication";
+
+
+
 
 
 
@@ -18,6 +20,7 @@ const app = express();
 const router = express.Router();
 
 app.use(cookieParser());
+
 
 
 const port = process.env.PORT || 5001;
@@ -46,12 +49,14 @@ db.connect((err) => {
   }
 });
 app.use(cors({
-    origin: "*", // Replace with specific allowed origins or use whitelist approach
+    origin: true, // Replace with specific allowed origins or use whitelist approach
     credentials: true // Enable cookies for proper authentication handling
   }));
 app.use(express.json()); // Parse JSON request bodies
 
-
+app.post("/api/hello",async(req,res) =>{
+  res.send('hello')
+})
 // **Register endpoint**
 app.post("/api/register", async (req, res) => {
 
@@ -76,8 +81,8 @@ app.post("/api/register", async (req, res) => {
               [email,hashedPassword,username,name]
       );
       console.log("data inserted")
-  
-      res.status(200).json({ success: true, message: "Registration successful" });
+       
+      // res.status(200).json({ success: true, message: "Registration successful" });
     } catch (err) {
       console.error(err);
       res.status(500).json({ message: "Internal server error" });
@@ -166,12 +171,14 @@ app.post("/api/register", async (req, res) => {
 
 app.post('/api/adde' , async(req,res) => {
   const {employeeName, employeeAge, employeeSalary, employeeSalaryType, businessUuid, employerUuid} = req.body;
-  console.log("reched");
+  console.log(employeeName);
+  
 
   try {
       
-      console.log("enterd try");
-
+      
+      console.log(employerUuid);
+      console.log(businessUuid);
       await db.query(
           "INSERT INTO b_employees (employee_name, employee_age, salary_amount, salary_type, employer_uuid, business_uuid ) VALUES ($1,$2,$3,$4,$5,$6)",
           [employeeName,employeeAge,employeeSalary,employeeSalaryType,employerUuid,businessUuid]
@@ -302,7 +309,6 @@ const aboutEmployee = async (req, res, next) => {
       }
       
       const employee = employeeResult.rows;
-      console.log(employee);
       req.employee = employee; 
       next();
   } catch (err) {

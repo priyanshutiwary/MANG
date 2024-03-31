@@ -14,7 +14,10 @@ const Addw = () => {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [ownerUuid, setOwnerUuid] = useState()
-  const [businessUuid, setBusinessUuid] = useState()
+  const [businessUuid, setBusinessUuid] = useState('88012167-b663-4243-8dc7-ef6c36d4916f')
+  const [selectedBusiness, setSelectedBusiness] = useState('');
+  const[businesses, setBusinesses] = useState([]);
+
 
   const handleChange = (event) => {
     setFormData({ ...formData, [event.target.name]: event.target.value });
@@ -41,7 +44,12 @@ const Addw = () => {
   const fetchUser = async()=>{
    try{
      const businessData = await Getbusiness();
-     setBusinessUuid(businessData.uuid);
+     
+     
+     
+     setBusinesses(businessData)
+     
+
      
      
      
@@ -59,16 +67,21 @@ const Addw = () => {
 
 
 
+
   const handleSubmit = async(event) => {
     event.preventDefault(salaryType);
+   
+    
+
     console.log(formData)
     try{
-      console.log("entered try");
+      
       const response = await axios.post('/api/adde',{
         employeeName:formData.name,
         employeeAge:formData.age,
         employeeSalary: formData.salary,
         employeeSalaryType: formData.salaryType,
+        
         businessUuid: businessUuid,
         employerUuid: ownerUuid,
       })
@@ -156,6 +169,33 @@ if(isLoggedIn){
               {/* You can add additional options if needed */}
             </select>
           </div>
+          <div className="flex flex-col">
+              <label htmlFor="business" className="text-gray-700 font-medium mb-2">
+                Business
+              </label>
+              <select
+                id="business"
+                name="business"
+                value={selectedBusiness}
+                onChange={(e) => setSelectedBusiness(e.target.value)}
+                
+                className="border border-gray-300 rounded px-3 py-2 focus:outline-none focus:border-blue-500"
+              >
+                <option value="select a business">None</option>
+                {businesses.map((business) => (
+                  
+                  <option key={business.id} value={business.id}>
+                    {business.business_name}
+                    
+                  </option>
+                  
+                )
+                )}
+
+              </select>
+
+
+            </div>
           <button type="submit" className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-700">
             Submit
           </button>

@@ -1,7 +1,7 @@
 
 import axios from 'axios';
 
-export const Getbusiness = async () => {
+export const Getaboutemployee = async () => {
   try {
     const res = await axios.get('/api/aboutBusiness', {
       headers: {
@@ -27,4 +27,4 @@ export const Getbusiness = async () => {
 };
 
 
-export default Getbusiness;
+export default Getaboutemployee;

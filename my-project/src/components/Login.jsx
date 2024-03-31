@@ -18,11 +18,10 @@ const Login = () => {
     e.preventDefault();
 
     try {
-      const response = await axios.post('/api/login', {
+      const response = await axios.post('api/login', {
         email,
         password,
       });
-      console.log(response);
 
       if (response.status === 200) {
         const token = response.data.token;

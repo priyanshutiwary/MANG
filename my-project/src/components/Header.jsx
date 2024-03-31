@@ -49,7 +49,7 @@ const Header = () => {
 
   return (
     <div>
-      <header className="bg-gray-800 text-white py-4 flex justify-between items-center">
+      <header className="bg-gray-900 text-white py-4 flex justify-between items-center">
         <h1 className="text-2xl font-bold pl-4">Mng</h1>
         <div className="flex items-center pr-4 relative">
           <span className="text-gray-300 mr-4">Welcome, {username}</span>

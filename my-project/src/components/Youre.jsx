@@ -17,6 +17,7 @@ const Youre = () => {
     const [employeeData, setEmployeeData] = useState([])
     const [employeeName, setEmployeeName] = useState([])
     const [employeeSalary, setEmployeeSalary] = useState([])
+    const [isLoggedIn, setIsLoggedIn] = useState()
 
 
     useEffect(()=>{
