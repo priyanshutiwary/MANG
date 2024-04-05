@@ -9,14 +9,14 @@ export const sendEmail = function sendEmail({ recipient_email, OTP }) {
       var transporter = nodemailer.createTransport({
         service: "gmail",
         auth: {
-          user: 'process.env.MY_EMAIL',
-          pass: 'process.env.MY_EMAIL_PASSWORD',
+          user: process.env.MY_EMAIL,
+          pass: process.env.MY_EMAIL_PASSWORD,
         },
       });
   
       const mail_configs = {
         
-        from: 'mangcustomerhelp@gmail.com',
+        from: process.env.MY_EMAIL,
         to: recipient_email,
         subject: "KODING 101 PASSWORD RECOVERY",
         html: `<!DOCTYPE html>
