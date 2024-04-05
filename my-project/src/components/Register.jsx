@@ -1,45 +1,39 @@
 import axios from 'axios';
 import React, { useState } from 'react';
-// import { useHistory } from "react-router-dom";
-import { Routes, Route, useNavigate } from 'react-router-dom';
+import { Routes, Route, useNavigate, Link } from 'react-router-dom';
 
 const Register = () => {
- const [name, setName] = useState('');
- const [username, setUsername] = useState('');
- const [email, setEmail] = useState('');
- const [password, setPassword] = useState('');
- const [confirmPassword, setConfirmPassword] = useState('');
- // const history = useHistory(); // Access the history object
- const navigate = useNavigate();
+  const [name, setName] = useState('');
+  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const navigate = useNavigate();
 
- const handleSubmit = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    
-        const response = await axios.post('/api/register',{
-            email,
-            password,
-            name,
-            username
-        });
-        if(response.status=== 200){
-            console.log("resistration succesfull");
-            alert('registered! login now')
-            navigate('/login')
 
+    const response = await axios.post('/api/register', {
+      email,
+      password,
+      name,
+      username
+    });
 
-        }else{
-            alert("error registring")
-        }
+    if (response.status === 200) {
+      console.log("Registration successful");
+      alert('Registered! Login now');
+      navigate('/login');
+    } else {
+      alert("Error registering");
+    }
+  };
 
-        }
+  const handleLogin = () => {
+    navigate('/login');
+  };
 
-    
-
-    
-  
-
-
- return (
+  return (
     <div className="flex justify-center items-center min-h-screen bg-gray-100">
       <div className="w-full max-w-md p-8 bg-white rounded-lg shadow-md">
         <h1 className="text-2xl font-bold text-center mb-4">Register</h1>
@@ -109,17 +103,23 @@ const Register = () => {
               required
             />
           </div>
-          
-          <div className="flex justify-center">
+
+          <div className="flex flex-col items-center justify-center gap-4">
             <button type="submit" className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full shadow-md">
               Register
             </button>
+            <Link
+              to="/login"
+              onClick={handleLogin}
+              className="text-blue-500 hover:text-blue-700 transition-colors duration-300"
+            >
+              Login
+            </Link>
           </div>
-          
         </form>
       </div>
     </div>
   );
-}
+};
 
 export default Register;

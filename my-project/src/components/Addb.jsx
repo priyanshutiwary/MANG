@@ -16,6 +16,8 @@ const Addb = () => {
   const [ownerUuid, setOwnerUuid] = useState();
   const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isLoading, setIsLoading] = useState(false); 
+
 
   const handleChange = (event) => {
     setFormData({ ...formData, [event.target.name]: event.target.value });
@@ -63,7 +65,7 @@ const Addb = () => {
 
   const handleSubmit = async(event) => {
     event.preventDefault();
-    console.log({businessName})
+    setIsLoading(true)
       
       try{
         console.log("entered try");
@@ -85,8 +87,10 @@ const Addb = () => {
       }catch(e){
         console.log('Adding error:' , e);
         alert('failed')
+        
 
       }
+      
       console.log('Form submitted:', formData);
       setFormData({ businessName: '', businessDetails: '' }); // Clear form after submission
      
@@ -97,7 +101,7 @@ const Addb = () => {
 
 
 
-  if(isLoggedIn){
+  if(isLoggedIn ){
   return (
     <>
     <Header/>
@@ -141,6 +145,7 @@ const Addb = () => {
     </div>
     </>
   )
+  
   }else if(!isLoggedIn){
     return(
     <>

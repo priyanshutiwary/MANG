@@ -9,31 +9,19 @@ import Register from './components/Register';
 import Home from './components/Home';
 import Addb from './components/Addb';
 import Addw from './components/Addw';
-import axios from 'axios';
+
 import Yourb from './components/Yourb';
 import Youre from './components/Youre';
 import Getuser from './utils/Getuser';
+import Forgotpass from './components/Forgotpass'
+import Otpentry from './components/Otpentry'
+import NewPassEntry from './components/NewPassEntry';
+
+
 
 
 function App() {
-  const [data,setData]= useState()
-  const [isLoggedIn, setIsLoggedIn] = useState()
 
-
-//   useEffect(()=>{
-//     const fetchUser = async()=>{
-//      try{
-//        const userData = await Getuser();
-//        setIsLoggedIn(true);
-//      }catch(e){
-//        console.log("error fetching data:", error);
-//        setIsLoggedIn(false);
-//      }
-//     }
-//     fetchUser();
-
-//  }, []);
-  
 
 
   
@@ -41,6 +29,7 @@ function App() {
 
 
   return (
+    
     <>
     <BrowserRouter>
     
@@ -48,15 +37,14 @@ function App() {
         <Route path="/" element={<About />} />
         <Route path="/login" element={<Login/>}/>
         <Route path='/register' element={<Register />}/>
-        <Route path="/home" element={<Home isLoggedIn={isLoggedIn}/>} />
-        <Route path="/addb" element={<Addb isLoggedIn={isLoggedIn}/>} />
-        <Route path="/adde" element={<Addw isLoggedIn={isLoggedIn}/>} />
-        <Route path="/yourb" element={<Yourb isLoggedIn={isLoggedIn}/>} />
-        <Route path="/youre" element={<Youre isLoggedIn={isLoggedIn}/>} />
-
-
-
-
+        <Route path="/home" element={<Home />} />
+        <Route path="/addb" element={<Addb />} />
+        <Route path="/adde" element={<Addw />} />
+        <Route path="/yourb" element={<Yourb />} />
+        <Route path="/youre" element={<Youre />} />
+        <Route path="/forgotpass" element={<Forgotpass/>}/>
+        <Route path="/otpverification" element={<Otpentry />}/>
+        <Route path="/setnewpass" element={<NewPassEntry />}/>
         
       </Routes>
       </BrowserRouter>

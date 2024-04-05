@@ -3,6 +3,7 @@ import Getuser from '../utils/Getuser';
 import Getbusiness from '../utils/Getbusiness';
 import axios from 'axios';
 import Header from './Header';
+import { useNavigate } from 'react-router-dom'; // Import useNavigate
 
 const Addw = () => {
   const [formData, setFormData] = useState({
@@ -12,98 +13,78 @@ const Addw = () => {
     salaryType: 'Monthly', // Set default salary type
   });
   const [isSubmitted, setIsSubmitted] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false)
-  const [ownerUuid, setOwnerUuid] = useState()
-  const [businessUuid, setBusinessUuid] = useState('88012167-b663-4243-8dc7-ef6c36d4916f')
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isLoading, setIsLoading] = useState(false); // Added state for loading
+  const [ownerUuid, setOwnerUuid] = useState();
+  const [businessUuid, setBusinessUuid] = useState('88012167-b663-4243-8dc7-ef6c36d4916f');
   const [selectedBusiness, setSelectedBusiness] = useState('');
-  const[businesses, setBusinesses] = useState([]);
-
+  const [businesses, setBusinesses] = useState([]);
+  const navigate = useNavigate(); // Initialize useNavigate
 
   const handleChange = (event) => {
     setFormData({ ...formData, [event.target.name]: event.target.value });
   };
 
-
-  useEffect(()=>{
-    const fetchUser = async()=>{
-     try{
-       const userData = await Getuser();
-       setOwnerUuid(userData.uuid)
-       setIsLoggedIn(true)
-       
-     }catch(error){
-       console.log("error fetching data:", error);
-       setIsLoggedIn(false)
-       
-     }
-    }
+  useEffect(() => {
+    const fetchUser = async () => {
+      setIsLoading(true); // Set loading to true before fetching data
+      try {
+        const userData = await Getuser();
+        setOwnerUuid(userData.uuid);
+        setIsLoggedIn(true);
+      } catch (error) {
+        console.log("error fetching user data:", error);
+        setIsLoggedIn(false);
+      } finally {
+        setIsLoading(false); // Set loading to false after fetching data
+      }
+    };
     fetchUser();
+  }, []);
 
- }, []);
- useEffect(()=>{
-  const fetchUser = async()=>{
-   try{
-     const businessData = await Getbusiness();
-     
-     
-     
-     setBusinesses(businessData)
-     
+  useEffect(() => {
+    const fetchBusiness = async () => {
+      setIsLoading(true); // Set loading to true before fetching data
+      try {
+        const businessData = await Getbusiness();
+        setBusinesses(businessData);
+      } catch (error) {
+        console.log("error fetching business data:", error);
+      } finally {
+        setIsLoading(false); // Set loading to false after fetching data
+      }
+    };
+    fetchBusiness();
+  }, []);
 
-     
-     
-     
-   }catch(error){
-     console.log("error fetching data:", error);
-     
-     
-   }
-  }
-  fetchUser();
+  const handleSubmit = async (event) => {
+    event.preventDefault();
 
-}, []);
-
-
-
-
-
-
-  const handleSubmit = async(event) => {
-    event.preventDefault(salaryType);
-   
-    
-
-    console.log(formData)
-    try{
-      
-      const response = await axios.post('/api/adde',{
-        employeeName:formData.name,
-        employeeAge:formData.age,
+    console.log(formData);
+    try {
+      const response = await axios.post('/api/adde', {
+        employeeName: formData.name,
+        employeeAge: formData.age,
         employeeSalary: formData.salary,
         employeeSalaryType: formData.salaryType,
-        
         businessUuid: businessUuid,
         employerUuid: ownerUuid,
-      })
+      });
       console.log("after response");
-      
-      if (response.status === 200){
-        alert('employee added')
-        
-      }else{
+
+      if (response.status === 200) {
+        alert('employee added');
+      } else {
         alert('error adding');
       }
-      
-
-    }catch(e){
-      console.log('Adding error:' , e);
-      alert('failed')
-
+    } catch (e) {
+      console.log('Adding error:', e);
+      alert('failed');
     }
     console.log('Form submitted:', formData);
     setFormData({ businessName: '', businessDetails: '' }); // Clear form after submission
   };
-if(isLoggedIn){
+if(isLoggedIn && !isLoading){
   return (
     <>
     <Header/>
@@ -205,22 +186,16 @@ if(isLoggedIn){
     </div>
     </>
   );}
-  else{
-    return(
-      <>
-      <h1 className="mb-8">You are not logged in, please login</h1>
-      <button
-        type="button"
-        onClick={()=> navigate('/login')}
-        className="cursor-pointer text-red-900 text-center w-28 h-8 bg-gray-400 rounded-lg"
-      >
-        Log in here
-      </button>
+  else if(isLoading) {
     
-      </>
-    
-      )
-  }
+    return (
+      <div className="loading-wrapper flex flex-col items-center justify-center h-screen">
+        
+        <p>Loading...</p>
+      </div>
+    );
+  } 
+
 };
 
 export default Addw;

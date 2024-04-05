@@ -1,5 +1,4 @@
-import React from 'react';
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Header from './Header';
 import axios from 'axios';
@@ -15,16 +14,23 @@ const logos = {
 
 const Home = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isLoading, setIsLoading] = useState(false); // Added state for loading
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetchUser = async () => {
+      setIsLoading(true); // Set loading to true before fetching data
       try {
-        const userData = await Getuser();
-        setIsLoggedIn(true);
-      } catch (e) {
+        if (await Getuser()) {
+          setIsLoggedIn(true);
+        } else {
+          setIsLoggedIn(false); // Handle case where Getuser doesn't resolve to truthy value
+        }
+      } catch (error) {
         console.log("error fetching data:", error);
         setIsLoggedIn(false);
+      } finally {
+        setIsLoading(false); // Set loading to false after fetching data
       }
     };
     fetchUser();
@@ -32,19 +38,26 @@ const Home = () => {
 
   return (
     <div className={isLoggedIn ? "home-wrapper" : "login-wrapper"}>
-      {isLoggedIn && (
-        <>
-          <Header />
-          <main className="container mx-auto px-4 py-8">
-            <h2 className="text-3xl font-bold mb-4 text-center">Manage Your Business</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <ActionCard text="Add Business" color="green" onClick={() => navigate('/addb')} />
-              <ActionCard text="Add Employee" color="blue" onClick={() => navigate('/adde')} />
-              <ActionCard text="Your Business" color="purple" onClick={() => navigate('/yourb')} />
-              <ActionCard text="Manage Employee" color="indigo" onClick={() => navigate('/youre')} />
-            </div>
-          </main>
-        </>
+      {isLoading ? (
+        <div className="loading-wrapper flex flex-col items-center justify-center h-screen">
+          {/* Add a loading indicator here, e.g., a spinner */}
+          <p>Loading...</p>
+        </div>
+      ) : (
+        isLoggedIn && (
+          <>
+            <Header />
+            <main className="container mx-auto px-4 py-8">
+              <h2 className="text-3xl font-bold mb-4 text-center">Manage Your Business</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <ActionCard text="Add Business" color="green" onClick={() => navigate('/addb')} />
+                <ActionCard text="Add Employee" color="blue" onClick={() => navigate('/adde')} />
+                <ActionCard text="Your Business" color="purple" onClick={() => navigate('/yourb')} />
+                <ActionCard text="Manage Employee" color="indigo" onClick={() => navigate('/youre')} />
+              </div>
+            </main>
+          </>
+        )
       )}
       {!isLoggedIn && (
         <div className="login-wrapper flex flex-col items-center justify-center h-screen">
@@ -77,3 +90,4 @@ const ActionCard = ({ text, color, onClick }) => {
 };
 
 export default Home;
+

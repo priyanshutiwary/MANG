@@ -3,7 +3,7 @@ import axios from 'axios';
 
 export const Getuser = async (setIsLoggedIn, setUsername) => {
   try {
-    const res = await axios.get('http://localhost:5001/'+'api/aboutUser', {
+    const res = await axios.get('/api/aboutUser', {
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json',

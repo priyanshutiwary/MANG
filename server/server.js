@@ -7,7 +7,7 @@ import bcrypt from 'bcrypt'
 import jsonwebtoken from 'jsonwebtoken'
 import jwt from 'jsonwebtoken';
 import cookieParser from 'cookie-parser';
-
+import {sendEmail} from './controllers/sendEmail.js'
 
 
 
@@ -17,8 +17,9 @@ import cookieParser from 'cookie-parser';
 
 
 const app = express();
-const router = express.Router();
-
+let router = express.Router();
+let sentOtp={};
+let sentEmail={};
 app.use(cookieParser());
 
 
@@ -54,9 +55,7 @@ app.use(cors({
   }));
 app.use(express.json()); // Parse JSON request bodies
 
-app.post("/api/hello",async(req,res) =>{
-  res.send('hello')
-})
+
 // **Register endpoint**
 app.post("/api/register", async (req, res) => {
 
@@ -82,7 +81,7 @@ app.post("/api/register", async (req, res) => {
       );
       console.log("data inserted")
        
-      // res.status(200).json({ success: true, message: "Registration successful" });
+      res.status(200).json({ success: true, message: "Registration successful" });
     } catch (err) {
       console.error(err);
       res.status(500).json({ message: "Internal server error" });
@@ -124,6 +123,7 @@ app.post("/api/register", async (req, res) => {
       }
     } catch (err) {
       console.log(err);
+      
       res.status(500).json({ message: 'Internal server error' });
 
 
@@ -192,6 +192,83 @@ app.post('/api/adde' , async(req,res) => {
       
   }
 })
+
+app.post('/api/send_recovery_email', async (req, res) => {
+  const {recipient_email} = req.body;
+  const OTP = Math.floor(Math.random() * 1000000 + 1000);
+
+
+  try {
+    const result = await db.query(
+      `SELECT COUNT(*) AS email_exists FROM users WHERE email = $1`,
+      [recipient_email]
+    );
+
+    if (result.rows.length > 0 && result.rows[0].email_exists > 0) {
+      await sendEmail({recipient_email, OTP});
+      sentOtp = OTP;
+      sentEmail = recipient_email
+      console.log(sentOtp)
+      console.log(sentEmail)      
+      res.status(200).json({ success: true, message: 'Recovery email sent successfully.' });
+    } else {
+      res.status(404).json({ success: false, message: 'Email not found in the database.' });
+    }
+  } catch (error) {
+    console.error('Error occurred while sending recovery email:', error);
+    res.status(500).json({ success: false, message: 'Internal server error.' });
+  }
+});
+app.post('/api/verify_otp', async(req, res) =>{
+  const {otp} = req.body; // Include recipient_email in the request body
+  console.log(otp);
+  try {
+    console.log("entered");
+    console.log(sentOtp);
+
+    if (sentOtp == otp) {
+      res.status(200).json({ success: true, message: 'OTP verified successfully.' });
+      
+
+      sentOtp=0; // Delete OTP after successful verification
+    } else {
+      res.status(400).json({ success: false, message: 'Invalid OTP.' });
+    }
+  } catch (error) {
+    console.log(error);
+  }
+});
+app.post ('/api/resetpass', async(req,res) => {
+   const {newPassword} = req.body;
+   console.log(newPassword);
+   try{
+   const hashedPassword = await bcrypt.hash(newPassword, saltRounds);
+   console.log(hashedPassword)
+   console.log(sentEmail)
+   var email=sentEmail
+   const result = await db.query(
+    "UPDATE users SET password = $1 WHERE email = $2",
+    [hashedPassword, email]
+  );
+
+  if (result.rowCount > 0) {
+    res.status(200).json({ success: true, message: 'Password reset successful.' });
+  } else {
+    res.status(404).json({ success: false, message: 'User not found.' });
+  }
+
+    
+   } catch (error) {
+    console.log(error);
+    res.status(500).json({success: false, message: 'internal server error'})
+    
+   }
+   
+   
+   
+})
+
+
 
 
 
@@ -353,3 +430,6 @@ function generateJwtToken(userData) {
 app.listen(port, () => {
     console.log(`Server started at port ${port}`);
 });
+
+
+

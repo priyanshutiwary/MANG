@@ -7,7 +7,7 @@ env.config()
 export default defineConfig({
   server:{
     proxy:{
-      // '/api':process.env.REACT_APP_BACKEND_URL
+      // '/api':process.env.REACT_APP_BACKEND_URL || 'http://localhost:5001/'
       '/api':'http://localhost:5001/'
     },
 
