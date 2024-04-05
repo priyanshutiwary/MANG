@@ -1,6 +1,6 @@
 {
   "rewrites": [
-    { "source": "/api/:path*", "destination": "https://backchodi-ddgy.onrender.com/api/:path*" },
+    { "source": "/api/:path*", "destination": "https://mang-1.onrender.com/api/:path*" },
     { "source": "/(.*)", "destination": "/index.html" }
   ]
 }
